@@ -2,71 +2,52 @@
 
 namespace App\Services;
 
-
 use App\Models\Student;
-use Illuminate\Http\Request;
+use App\Http\Requests\CreateStudentRequest;
 use Illuminate\Support\Facades\Validator;
-
 
 class StudentService
 {
-
     public function getAllStudents()
     {
         $students = Student::all();
 
         if ($students->isEmpty()) {
             return [
-                'status' => 404,
+                'status' => 204, // Código 204 para no contenido
                 'data' => [
-                    'message' => 'No hay estudiantes registrados',
-                    'status' => 404,
+                    'message' => 'No se encontraron estudiantes',
+                    'status' => 204,
                 ],
             ];
         }
+
         return [
             'status' => 200,
             'data' => $students,
         ];
     }
 
-    public function createStudent(Request $request)
+    public function createStudent(CreateStudentRequest $request)
     {
-        $validator = Validator::make($request->all(), [
-            'name' => 'required',
-            'email' => 'required|email',
-            'phone' => 'required',
-            'language' => 'required',
-        ]);
+        try {
+            $student = Student::create($request->validated()); // Usamos los datos validados
 
-        if ($validator->fails()) {
             return [
-                'status' => 400,
+                'status' => 201,
                 'data' => [
-                    'message' => 'Error en la validación',
-                    'error' => $validator->errors(),
+                    'message' => 'Estudiante creado correctamente',
+                    'student' => $student,
                 ],
-                'status' => 400,
             ];
-        }
-
-        $student = Student::create($request->all());
-
-        if (!$student) {
+        } catch (\Exception $e) {
             return [
+                'status' => 500,
                 'data' => [
                     'message' => 'Error al crear Estudiante',
-                    'status' => 500,
+                    'error' => $e->getMessage(),
                 ],
             ];
         }
-
-        return [
-            'data' => [
-                'message' => 'Estudiante creado correctamente',
-                'student' => $student,
-            ],
-            'status' => 201,
-        ];
     }
 }

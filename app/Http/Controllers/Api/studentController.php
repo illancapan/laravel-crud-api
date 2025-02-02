@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Student;
 use App\Services\StudentService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
 
 class studentController extends Controller
 {
@@ -37,8 +36,5 @@ class studentController extends Controller
 
         // Retornar una respuesta con el código 201
         return response()->json($student, 201);
-
-        // $result = $this->studentService->createStudent($request);
-        // return response()->json($result['data'], $result['status']);
     }
 }
